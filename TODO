@@ -1,4 +1,5 @@
 enable the A20 line with a better way in i386 legacy bios boot
+get the stack working in i386 boot
 support arm
 support the attiny85?
 
