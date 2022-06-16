@@ -1,0 +1,6 @@
+sboot - a simple boot-loader
+============================
+
+sboot is a small simple boot-loader that currently only supports i386 legacy bios.
+
+sboot will hopefully be highly configurable and with more achiectures and boot interfaces/protcols.
