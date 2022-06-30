@@ -3,14 +3,8 @@ include config.mk
 #OBJDIR is needed for PortOS
 OBJDIR ?= .
 
-<<<<<<< HEAD
-all: 
-	$(AS) --fatal-warnings --warn -I ../include -c boot.S -o $(OBJDIR)/boot.o
-	$(LD) -s -N -e _start -Ttext 0x7C00 -o $(OBJDIR)/boot.bin $(OBJDIR)/boot.o --oformat binary
-=======
 all:
 	@echo ":("
->>>>>>> 853bd52 (stages wip)
 
 
 #arm:
