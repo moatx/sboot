@@ -3,7 +3,7 @@ include config.mk
 #OBJDIR is needed for PortOS
 OBJDIR ?= .
 
-all:
+all: i386-bios
 	@echo ":("
 
 
