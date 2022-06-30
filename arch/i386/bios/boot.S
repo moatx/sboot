@@ -23,7 +23,7 @@
  * SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
 
-	.file	"boot.S"
+.file	"boot.S"
 
 /* TODO: make this work with all bioses */
 
@@ -68,28 +68,28 @@ after_BPB:
 
 main:
 
-  /* clear interuppts and descriptors to not have any problems with some bioses */
-  cli
-  cld
+	/* clear interuppts and descriptors to not have any problems with some bioses */
+	cli
+	cld
+	
+	/* remember boot drive */
+	mov %dl, BOOT_DRIVE 
+	
+	
+	/* set segment registers to 0 */
+	xorw    %ax,%ax             
+	movw    %ax,%ds 
+	movw    %ax,%es             
+	movw    %ax,%ss             
 
-  /* remember boot drive */
-  mov %dl, BOOT_DRIVE 
-
-
-  /* set segment registers to 0 */
-  xorw    %ax,%ax             
-  movw    %ax,%ds 
-  movw    %ax,%es             
-  movw    %ax,%ss             
-
-  /* set up stack */
-/*
-  mov $0x7b00, %ax
-  mov %ax, %sp
-*/
-
-  mov $MSG_REAL_LOADED, %bx
-  call rprint
+	/* set up stack */
+	/*
+	  mov $0x7b00, %ax
+	  mov %ax, %sp
+	*/
+	
+	mov $MSG_REAL_LOADED, %bx
+	call rprint
 
 /* enable the a20 line for 20th bit */
 seta20:
