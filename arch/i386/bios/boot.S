@@ -93,7 +93,7 @@ main:
 
 /* enable the a20 line for 20th bit */
 seta20:
-	mov $MSG_CHECK_A201, %bx
+	mov $MSG_CHECK_A20, %bx
 	call rprint
 	
 	call wait_kbd
@@ -125,9 +125,17 @@ jump2protected:
   call rprint
 
   /* this bit needs to be switched on to go to 32 bit protected mode */
+
+  /* FIXME: the problem seems to be here */
   movl %cr0, %eax
   orl $0x1, %eax
   movl %eax, %cr0
+/*
+  mov %cr0, %eax
+  or $0x1, %eax
+  mov %eax, %cr0
+*/
+
 
 
   /* finnaly long jump into a label in 32 bit protected mode to reload %cs and %eip (inscrution pointer) */
@@ -230,8 +238,10 @@ BOOT_DRIVE: .byte 0
 /* MESSAGES */
 MSG_REAL_LOADED: .asciz "loaded in 16 bit real mode \n \r"
 
-MSG_CHECK_A201: .asciz "in A201 \n \r"
+MSG_CHECK_A20: .asciz "in A20 \n \r"
+/*
 MSG_CHECK_A202: .asciz "in A202 \n \r"
+*/
 MSG_CHECK_GDT:	.asciz "loaded the gdt \n \r"
 MSG_CHECK_LOAD: .asciz "in load_kernel \n \r"
 
