@@ -23,31 +23,51 @@
  * SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
 
+	.file	"boot.S"
+
 /* TODO: make this work with all bioses */
 
-.set KOFFSET, 0x1000
+#include <asm.h>
 
+#define KOFFSET 0x1000
+
+#define BOOTSEG 0x07c0
+
+	/*.text*/
 .code16 /* excute code as 16 bit instructions */
 
-.global _start 
-
-_start: 
-
-  ljmp $0x0000, $after_BPB
-
+ENTRY(start)
+  /* fix code segment */
+  ljmp $0x0,$main
+/*
+  jmp after_BPB 
+*/
   nop
+  jmp .
+
 
   /* fill the BPB area with 0s to make sure bios doesnt do anything stupid like overwriting the bootsector */
   /* TODO: this needs to be done */
+/*
+  . = _start + 11		
+				
+   . = _start + 62 		
   cli
   1: 
    nop
    hlt
    nop
    jmp 1b
+*/
 
 
+/*
 after_BPB:
+  ljmp $BOOTSEG, $main
+*/
+
+main:
+
   /* clear interuppts and descriptors to not have any problems with some bioses */
   cli
   cld
@@ -58,9 +78,15 @@ after_BPB:
 
   /* set segment registers to 0 */
   xorw    %ax,%ax             
-  movw    %ax,%ds             
+  movw    %ax,%ds 
   movw    %ax,%es             
   movw    %ax,%ss             
+
+  /* set up stack */
+/*
+  mov $0x7b00, %ax
+  mov %ax, %sp
+*/
 
   mov $MSG_REAL_LOADED, %bx
   call rprint
@@ -206,6 +232,6 @@ MSG_CHECK_LOAD: .asciz "in load_kernel \n \r"
 
 MSG_ERROR_JUMP: .asciz "ERROR: did not jump to protected mode \n \r"
 
-.fill (510-(.-_start)) /* fill 510 bytes with 0s */
+.fill (510-(.-start)) /* fill 510 bytes with 0s */
 BIOS_NUMBER: .word 0xAA55 /* BIOS MAGIC NUMBER */
 

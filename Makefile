@@ -1,14 +1,33 @@
 include config.mk
+
+#OBJDIR is needed for PortOS
 OBJDIR ?= .
 
+<<<<<<< HEAD
 all: 
 	$(AS) --fatal-warnings --warn -I ../include -c boot.S -o $(OBJDIR)/boot.o
 	$(LD) -s -N -e _start -Ttext 0x7C00 -o $(OBJDIR)/boot.bin $(OBJDIR)/boot.o --oformat binary
+=======
+all:
+	@echo ":("
+>>>>>>> 853bd52 (stages wip)
 
-test: all
-	$(CC) $(CFLAGS) -c ./test/$(ARCH).c -o i386.o
+
+#arm:
+#	$(AS)
+#
+#arm-test:
+
+
+i386-bios: 
+	$(CC) $(CFLAGS) -I arch/i386/include -c arch/i386/bios/boot.S -o $(OBJDIR)/boot.o
+	$(LD) -s -N -e _start -Ttext 0x7C00 -o $(OBJDIR)/boot.bin $(OBJDIR)/boot.o --oformat binary
+
+test-i386-bios: i386-bios
+	$(CC) $(CFLAGS) -c ./test/$(ARCH)_bios.c -o i386.o
 	$(LD) -s -e main -o i386.bin -Ttext 0x1000 i386.o --oformat binary
 	cat boot.bin i386.bin > test.bin
+	qemu-system-i386 test.bin
 
 
 
@@ -16,4 +35,4 @@ test: all
 clean:
 	@rm -f *.o *.bin
 
-.PHONY: all test clean 
+.PHONY: all i386_bios test_i386_bios clean 

@@ -1,5 +1,5 @@
-ARCH= i386
-TOOLPREFIX := $(ARCH)-elf-
+ARCH?= i386
+TOOLPREFIX ?= i386-elf-
 
 CC := $(TOOLPREFIX)gcc
 AS := $(TOOLPREFIX)as

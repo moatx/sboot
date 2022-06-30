@@ -1,7 +1,16 @@
+seperate i386 legacy bios boot into 2 stages to bypass limit
 enable the A20 line with a better way in i386 legacy bios boot
 get the stack working in i386 boot
-make portable second stage bootloader?
+read elf kernel
+boot linux 
+
+support uefi
 support arm
 support the attiny85?
-boot linux 
+
+
+investiagate:
+	- fat fs 
+	- mbr
+	- El-Torito and ISO 9660
 
