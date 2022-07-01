@@ -4,7 +4,6 @@ include config.mk
 OBJDIR ?= .
 
 all: i386-bios
-	@echo ":("
 
 
 #arm:
@@ -15,7 +14,8 @@ all: i386-bios
 
 i386-bios: 
 	$(CC) $(CFLAGS) -I arch/i386/include -c arch/i386/bios/boot.S -o $(OBJDIR)/boot.o
-	$(LD) -s -N -e _start -Ttext 0x7C00 -o $(OBJDIR)/boot.bin $(OBJDIR)/boot.o --oformat binary
+	#$(LD) -s -N -e _start -Ttext 0x7C00 -o $(OBJDIR)/boot.bin $(OBJDIR)/boot.o --oformat binary
+	$(LD) -s -N -e start -T arch/i386/bios/linker.ld -o $(OBJDIR)/boot.bin $(OBJDIR)/boot.o --oformat binary
 
 test-i386-bios: i386-bios
 	$(CC) $(CFLAGS) -c ./test/$(ARCH)_bios.c -o i386.o

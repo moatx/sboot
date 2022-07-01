@@ -23,7 +23,7 @@
  * SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
 
-.file	"boot.S"
+.file	"stage2.S"
 
 /* TODO: make this work with all bioses */
 
@@ -39,7 +39,32 @@
 ENTRY(start)
   /* fix code segment */
   ljmp $0x0,$main
+/*
+  jmp after_BPB 
+*/
+  nop
   jmp .
+
+
+  /* fill the BPB area with 0s to make sure bios doesnt do anything stupid like overwriting the bootsector */
+  /* TODO: this needs to be done */
+/*
+  . = _start + 11		
+				
+   . = _start + 62 		
+  cli
+  1: 
+   nop
+   hlt
+   nop
+   jmp 1b
+*/
+
+
+/*
+after_BPB:
+  ljmp $BOOTSEG, $main
+*/
 
 main:
 
@@ -58,55 +83,11 @@ main:
 	movw    %ax,%ss             
 
 	/* set up stack */
-	mov $0x7b00, %ax
-  	mov %ax, %sp
+	/*
+	  mov $0x7b00, %ax
+	  mov %ax, %sp
+	*/
 	
-	mov $stage2, %bx
-    /* Read sectors into memory */
-    mov $2, %ah
-    /* Number of sectors to read. */
-    mov $1, %al
-    /* Drive number. Starts at 0x80, second one is 0x81. TODO why not from 0?
-     *
-     * The BIOS stores the right number on dl as an initial state,
-     * but we may be destroying it before, and are lazy to properly store it somewhere.
-     * http://stackoverflow.com/a/19387093/895245
-     */
-    mov $0x80, %dl
-    /* cylinder number */
-    mov $0, %ch
-    /* Head number */
-    mov $0, %dh
-    /* Starting sector number. 2 because 1 was already loaded. */
-    mov $2, %cl
-    /* Where to load to.
-     * Must coincide with our stage2 for the linking to work.
-     *
-     * The address is calculated as:
-     *
-     * ....
-     * 16 * ES + BX
-     * ....
-     */
-    mov $stage2, %bx
-    int $0x13
-
-    jmp stage2
-
-
-
-  /* should not return but if it does lets have a infinite loop */
-  jmp .
-
-.fill (510-(.-start)) /* fill 510 bytes with 0s */
-BIOS_NUMBER: .word 0xAA55 /* BIOS MAGIC NUMBER */
-	
-.section .stage2
-stage2:
-	/* clear interuppts and descriptors to not have any problems with some bioses */
-	cli
-	cld
-
 	mov $MSG_REAL_LOADED, %bx
 	call rprint
 
@@ -128,10 +109,10 @@ seta20:
 	in $0x92, %al
 	or $2, %al
 	out %al, $0x92
+	
 
 load_kernel:
 	mov $0x1000, %bx
-
         mov $16, %dh
         mov (BOOT_DRIVE), %dl
         call disk_load
@@ -144,11 +125,11 @@ jump2protected:
   call rprint
 
   /* this bit needs to be switched on to go to 32 bit protected mode */
+
   /* FIXME: the problem seems to be here */
   movl %cr0, %eax
   orl $0x1, %eax
   movl %eax, %cr0
-
 /*
   mov %cr0, %eax
   or $0x1, %eax
@@ -166,9 +147,31 @@ jump2protected:
   /* should not return but if it does lets have a infinite loop */
   jmp .
 
-/*
+
+
+.code32
+DATA_SEG: .long (gdt_data - gdt_start)
+_start32:
+
+  /* setup 32 bit segment registers */
+  movw DATA_SEG, %ax
+  movw %ax, %ds
+  movw %ax, %es
+  movw %ax, %fs
+  movw %ax, %gs
+  movw %ax, %ss
+
+  mov $0x90000, %ebp
+  mov %ebp, %esp
+
+
+  call KOFFSET
+
+  /* should not return but if it does lets have a infinite loop */
+  jmp .
+
+
 .code16
-*/
 
 /* GDT */
 gdt_start:
@@ -206,7 +209,7 @@ wait_kbd:
 disk_load:
         mov $0x02, %ah
         mov %dh, %al
-	mov $0x03, %cl
+	mov $0x02, %cl
 	mov $0x00, %ch
 	mov $0x00, %dh
 	int $0x13
@@ -244,28 +247,6 @@ MSG_CHECK_LOAD: .asciz "in load_kernel \n \r"
 
 MSG_ERROR_JUMP: .asciz "ERROR: did not jump to protected mode \n \r"
 
-
-
-
-.code32
-DATA_SEG: .long (gdt_data - gdt_start)
-_start32:
-
-  /* setup 32 bit segment registers */
-  movw DATA_SEG, %ax
-  movw %ax, %ds
-  movw %ax, %es
-  movw %ax, %fs
-  movw %ax, %gs
-  movw %ax, %ss
-
-  mov $0x90000, %ebp
-  mov %ebp, %esp
-
-
-  call KOFFSET
-
-  /* should not return but if it does lets have a infinite loop */
-  jmp .
-
+.fill (510-(.-start)) /* fill 510 bytes with 0s */
+BIOS_NUMBER: .word 0xAA55 /* BIOS MAGIC NUMBER */
 

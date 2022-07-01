@@ -1,6 +1,5 @@
-seperate i386 legacy bios boot into 2 stages to bypass limit
 enable the A20 line with a better way in i386 legacy bios boot
-get the stack working in i386 boot
+document disk
 read elf kernel
 boot linux 
 
