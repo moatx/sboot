@@ -133,7 +133,10 @@ load_kernel:
 	mov $0x1000, %bx
 
         mov $16, %dh
+/* XXX: dont do this! */
+/*
         mov (BOOT_DRIVE), %dl
+*/
         call disk_load
 
 jump2protected:
