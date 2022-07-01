@@ -25,7 +25,8 @@
  * For more information, please refer to <http://unlicense.org/>
  */
 
-void main(void);
+void kmain(void);
+void bro(void);
 static void cls(void);
 static void test_print(char* str);
 static unsigned int char_loc = 0;
@@ -37,7 +38,13 @@ static unsigned int char_loc = 0;
 /* this test code will be booted by sboot for i386 legacy bios */
 
 void
-main(void)
+bro(void)
+{
+	test_print("bro");
+}
+
+void
+kmain(void)
 {
 	cls(); /* clear the screen */
 	test_print("Hello from kernel space\n");

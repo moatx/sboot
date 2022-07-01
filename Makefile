@@ -19,7 +19,7 @@ i386-bios:
 
 test-i386-bios: i386-bios
 	$(CC) $(CFLAGS) -c ./test/$(ARCH)_bios.c -o i386.o
-	$(LD) -s -e main -o i386.bin -Ttext 0x1000 i386.o --oformat binary
+	$(LD) -s -N -e aaa -o i386.bin -Ttext 0x1000 i386.o --oformat binary
 	cat boot.bin i386.bin > test.bin
 	qemu-system-i386 test.bin
 
