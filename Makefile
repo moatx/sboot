@@ -29,4 +29,4 @@ test-i386-bios: i386-bios
 clean:
 	@rm -f *.o *.bin
 
-.PHONY: all i386_bios test_i386_bios clean 
+.PHONY: all i386-bios test-i386-bios clean 

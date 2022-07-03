@@ -45,6 +45,13 @@
 
 7. load the kernel from disk to memory
 	* The boot-loader **needs** to load the kernel from disk to memory so we could jump to memory as mentioned in step 8
+	* The way the boot-loader loads the kernel is by using bios functions and those bios functions require the boot-loader to provide its CHS
+	* CHS stands for Cylinder / Head / Sector
+	* Head (or Face) is the side of the disk. Head 0 is the front side, Head 1 is the back side. Most disks only have 1 side, hence only 1 head ("Head 1") 
+	* Cylinder is horizital and goes from outside to inside 
+	* Sector is parts (512 bytes) and is vertical
+	
+
 
 3. load the gdt
 	* The gdt contains entries telling the CPU about memory segments. The boot-loader loaded the gdt as a flat model meaning that the base of the gdt data segment and code segment overlap with each other.

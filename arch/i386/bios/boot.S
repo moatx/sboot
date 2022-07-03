@@ -31,9 +31,6 @@
 
 #define KOFFSET 0x1000
 
-#define BOOTSEG 0x07c0
-
-	/*.text*/
 .code16 /* excute code as 16 bit instructions */
 
 ENTRY(start)
@@ -57,46 +54,31 @@ main:
 	movw    %ax,%es             
 	movw    %ax,%ss             
 
-	/* set up stack */
+	/* set up stack because stage2 will depend on this */
 	mov $0x7b00, %ax
   	mov %ax, %sp
-	
+
+	/* put what we read to the memory location of the label stage2 */	
 	mov $stage2, %bx
-    /* Read sectors into memory */
-    mov $2, %ah
-    /* Number of sectors to read. */
-    mov $1, %al
-    /* Drive number. Starts at 0x80, second one is 0x81. TODO why not from 0?
-     *
-     * The BIOS stores the right number on dl as an initial state,
-     * but we may be destroying it before, and are lazy to properly store it somewhere.
-     * http://stackoverflow.com/a/19387093/895245
-     */
-    mov $0x80, %dl
-    /* cylinder number */
-    mov $0, %ch
-    /* Head number */
-    mov $0, %dh
-    /* Starting sector number. 2 because 1 was already loaded. */
-    mov $2, %cl
-    /* Where to load to.
-     * Must coincide with our stage2 for the linking to work.
-     *
-     * The address is calculated as:
-     *
-     * ....
-     * 16 * ES + BX
-     * ....
-     */
-    mov $stage2, %bx
-    int $0x13
+	/* read sectors into memory */
+	mov $2, %ah 
+	/* Number of sectors (512 bytes) to read. */
+	mov $1, %al /* just 1 sector to read because why would it be in 2? */
+	
+	/* cylinder number */
+	mov $0, %ch
+	/* Head number */
+	mov $0, %dh /* first head because its the only one that has stage2 */
+	/* starting sector number. 2 because the first sector is the boot sector. */
+	mov $2, %cl
+	
+	/* it'll only read sector number 2 */
+	int $0x13
 
-    jmp stage2
+	call stage2
 
-
-
-  /* should not return but if it does lets have a infinite loop */
-  jmp .
+	/* should not return but if it does lets have a infinite loop */
+	jmp .
 
 .fill (510-(.-start)) /* fill 510 bytes with 0s */
 BIOS_NUMBER: .word 0xAA55 /* BIOS MAGIC NUMBER */
@@ -107,7 +89,7 @@ stage2:
 	cli
 	cld
 
-	mov $MSG_REAL_LOADED, %bx
+	mov $MSG_STAGE2_LOADED, %bx
 	call rprint
 
 /* enable the a20 line for 20th bit */
@@ -130,14 +112,22 @@ seta20:
 	out %al, $0x92
 
 load_kernel:
-	mov $0x1000, %bx
+	mov $KOFFSET, %bx
 
-        mov $16, %dh
-/* XXX: dont do this! */
-/*
-        mov (BOOT_DRIVE), %dl
-*/
-        call disk_load
+	/* read sectors into memory */
+        mov $0x02, %ah
+	/* Number of sectors (512 bytes) to read. */
+	mov $1, %al /* XXX: is this really needed? */
+
+	/* starting sector number. 3 because the first sector is the boot sector. */
+	mov $0x03, %cl /* read the 3rd sector one time */
+
+	/* cylinder number */
+	mov $0x00, %ch
+
+	/* Head number */
+	mov $0x00, %dh
+	int $0x13
 
 jump2protected:
 
@@ -206,6 +196,7 @@ wait_kbd:
     	jnz wait_kbd
     	ret
 
+/*
 disk_load:
         mov $0x02, %ah
         mov %dh, %al
@@ -214,6 +205,7 @@ disk_load:
 	mov $0x00, %dh
 	int $0x13
 	ret
+*/
 
 /* real mode print */
 rprint:
@@ -236,16 +228,14 @@ rprint:
 BOOT_DRIVE: .byte 0
 
 /* MESSAGES */
-MSG_REAL_LOADED: .asciz "loaded in 16 bit real mode \n \r"
+MSG_STAGE2_LOADED: .asciz "stage2 has been loaded in 16 bit real mode \n \r"
 
 MSG_CHECK_A20: .asciz "in A20 \n \r"
-/*
-MSG_CHECK_A202: .asciz "in A202 \n \r"
-*/
 MSG_CHECK_GDT:	.asciz "loaded the gdt \n \r"
 MSG_CHECK_LOAD: .asciz "in load_kernel \n \r"
 
 MSG_ERROR_JUMP: .asciz "ERROR: did not jump to protected mode \n \r"
+MSG_ERROR_READ: .asciz "ERROR: could not read disk \n \r"
 
 
 
@@ -270,5 +260,7 @@ _start32:
 
   /* should not return but if it does lets have a infinite loop */
   jmp .
+
+
 
 

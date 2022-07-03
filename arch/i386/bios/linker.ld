@@ -28,7 +28,7 @@ SECTIONS
          */
 /*
         __stage2_nsectors = ABSOLUTE((. - __start) / 512);
-*/
+	*/
 
         /* Ensure that the generated image is a multiple of 512 bytes long. */
         . = ALIGN(512);

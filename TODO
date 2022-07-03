@@ -2,14 +2,9 @@ enable the A20 line with a better way in i386 legacy bios boot
 document disk
 read elf kernel
 boot linux 
+fix i386_bios_boot doc ( add how the boot-loader reads from disk )
 
 support uefi
 support arm
 support the attiny85?
-
-
-investiagate:
-	- fat fs 
-	- mbr
-	- El-Torito and ISO 9660
 

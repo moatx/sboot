@@ -25,7 +25,7 @@
  * For more information, please refer to <http://unlicense.org/>
  */
 
-void kmain(void);
+void main(void);
 void bro(void);
 static void cls(void);
 static void test_print(char* str);
@@ -44,7 +44,7 @@ bro(void)
 }
 
 void
-kmain(void)
+main(void)
 {
 	cls(); /* clear the screen */
 	test_print("Hello from kernel space\n");
