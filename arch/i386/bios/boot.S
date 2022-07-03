@@ -117,7 +117,7 @@ load_kernel:
 	/* read sectors into memory */
         mov $0x02, %ah
 	/* Number of sectors (512 bytes) to read. */
-	mov $1, %al /* XXX: is this really needed? */
+	mov $16, %al /* 16 because we dont know how big the kernel is and the only way to know how big it is to calculate it manually or use a fs */
 
 	/* starting sector number. 3 because the first sector is the boot sector. */
 	mov $0x03, %cl /* read the 3rd sector one time */
@@ -196,19 +196,9 @@ wait_kbd:
     	jnz wait_kbd
     	ret
 
-/*
-disk_load:
-        mov $0x02, %ah
-        mov %dh, %al
-	mov $0x03, %cl
-	mov $0x00, %ch
-	mov $0x00, %dh
-	int $0x13
-	ret
-*/
-
 /* real mode print */
 rprint:
+	pusha
 	mov $0x0e, %ah
 	1: 
 		mov (%bx), %al
@@ -220,7 +210,8 @@ rprint:
 		add $1, %bx
 		jmp 1b
 	1:
-	ret
+		popa
+		ret
 
 	
 	

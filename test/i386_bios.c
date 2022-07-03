@@ -47,7 +47,6 @@ void
 main(void)
 {
 	cls(); /* clear the screen */
-	test_print("Hello from kernel space\n");
 	test_print("we have been loaded by sboot :)");
 }
 
